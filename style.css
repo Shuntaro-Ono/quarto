@@ -1,0 +1,25 @@
+/* Link font color */
+a {
+    color: #69b3a2;
+}
+
+/* TOC color (left border and font color) */
+.sidebar nav[role=doc-toc] ul>li>a.active, .sidebar nav[role=doc-toc] ul>li>ul>li>a.active {
+    border-left: 1px solid #69b3a2;
+    color: #69b3a2 !important;
+}
+
+/* Make the "Show code" buttons very discrete (size and transparency) */
+details > summary {
+    font-size: 12px;
+    opacity: .5;
+}
+
+/* タブの文字色変更 */
+.nav-pills .nav-link.active {
+  color: #FFFFFF;
+}
+
+.nav-pills .nav-link {
+  color: #69b3a2;
+}

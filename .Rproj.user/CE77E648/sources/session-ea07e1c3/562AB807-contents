@@ -1,0 +1,918 @@
+---
+title: "Sample Report (Quarto)"
+format: 
+  html:
+    css: style.css
+    toc: true
+    toc_float: true
+    toc-title: Contents
+    toc-location: left
+    code-copy: true
+    code-fold: true
+    code-link: true
+    code-overflow: scroll
+    code-summary: "Show the code"
+    embed-resources: true
+    anchor-sections: true
+    smooth-scroll: true
+    include-in-header:
+      - file: github-corner.html
+editor: visual
+number-sections: true
+execute: 
+  echo: true
+  warning: false
+  message: false
+  fig.with: 9
+title-block-banner: "#f0f3f5"
+title-block-banner-color: "black"
+keywords: "Quarto"
+date: today
+theme:
+  light: flatly
+  dark: solar
+---
+
+```{=html}
+<style>
+figcaption {
+  text-align: center;
+}
+</style>
+```
+<br/>
+
+```{r package}
+
+library(tidyverse)
+library(ggplot2)
+library(highcharter)
+library(readxl)
+library(htmltools)
+library(lubridate)
+library(roll)
+library(gridExtra)
+
+# package for code-highlight
+library(xml2)
+library(downlit)
+
+```
+
+# Data準備
+
+-   日次で作成しているHistorical Dataを使用。
+
+-   2103期から2403期2月末までのデータを集積。
+
+```{r, results='asis'}
+# data of FY2021
+
+historical_data <- read_xlsx("data/Historical_Data_20210330.xlsx")
+
+historical_data$date <- as.Date(historical_data$date)
+```
+
+------------------------------------------------------------------------
+
+# 年度別NE
+
+-   X部の各営業室の年度別PL
+
+::: {.panel-tabset .nav-pills}
+## X1室
+
+```{r, results='asis', rowheight = 1400}
+# tooltip settings
+
+x <- c("Fiscal Year", "Date", "YTD PL (mil JPY)")
+y <- c("{point.fiscal_year}", "{point.date}", "{point.y}")
+
+tt <- tooltip_table(x, y)
+
+
+## data setting
+
+x1_pl <- historical_data %>%
+  filter(area %in% c("x1")) %>%
+  group_by(area) %>%
+  mutate(
+    year = year(date),
+    fiscal_year = if_else(
+      month(date) > 3, paste0("FY", year + 1), paste0("FY", year)
+    )
+  ) %>%
+  group_by(fiscal_year) %>%
+  mutate(
+    number_year = row_number(),
+    cum_pl = cumsum(daily_ne)
+  )
+
+## data visualization
+
+hc_x1_pl <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#D3D8DF"
+  ) %>%
+  hc_add_series(
+    data = x1_pl,
+    type = "line",
+    lineWidth = 2.5,
+    hcaes(
+      x = number_year,
+      y = round(cum_pl, 2),
+      group = fiscal_year
+    )
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0("<span style=\"color:{point.color}\">●</span> ", tt),
+    useHTML = TRUE,
+    valueDecimals = 0
+  ) %>%
+  hc_title(text = "X1室 YTD PL") %>%
+  hc_xAxis(
+    title = list(text = "number of days"),
+    tickInterval = 50,
+    lineColor = "#999999"
+  ) %>%
+  hc_yAxis(
+    title = list(text = "YTD PL (mil JPY)"),
+    gridLineColor = "#999999"
+  ) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_x1_pl
+```
+
+## X2室
+
+```{r, results='asis', rowheight = 1400}
+
+## data setting
+
+x2_pl <- historical_data %>%
+  filter(area %in% c("x2")) %>%
+  group_by(area) %>%
+  mutate(
+    year = year(date),
+    fiscal_year = if_else(
+      month(date) > 3, paste0("FY", year + 1), paste0("FY", year)
+    )
+  ) %>%
+  group_by(fiscal_year) %>%
+  mutate(
+    number_year = row_number(),
+    cum_pl = cumsum(daily_ne)
+  )
+
+## data visualization
+
+hc_x2_pl <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#E3EBF2"
+  ) %>%
+  hc_add_series(
+    data = x2_pl,
+    type = "line",
+    lineWidth = 2.5,
+    hcaes(
+      x = number_year,
+      y = round(cum_pl, 2),
+      group = fiscal_year
+    )
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0("<span style=\"color:{point.color}\">●</span> ", tt),
+    useHTML = TRUE,
+    valueDecimals = 0
+  ) %>%
+  hc_title(text = "X2室 YTD PL") %>%
+  hc_xAxis(
+    title = list(text = "number of days"),
+    tickInterval = 50,
+    lineColor = "#999999"
+  ) %>%
+  hc_yAxis(
+    title = list(text = "YTD PL (mil JPY)"),
+    gridLineColor = "#999999"
+  ) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_x2_pl
+```
+
+## X3室
+
+```{r, results='asis', rowheight = 1400}
+
+## data setting
+
+x3_pl <- historical_data %>%
+  filter(area %in% c("x3")) %>% 
+  group_by(area) %>%
+  mutate(
+    year = year(date),
+    fiscal_year = if_else(
+      month(date) > 3, paste0("FY", year + 1), paste0("FY", year)
+    )
+  ) %>%
+  group_by(fiscal_year) %>%
+  mutate(
+    number_year = row_number(),
+    cum_pl = cumsum(daily_ne)
+  )
+
+## data visualization
+
+hc_x3_pl <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF1E0"
+  ) %>%
+  hc_add_series(
+    data = x3_pl,
+    type = "line",
+    lineWidth = 2.5,
+    hcaes(
+      x = number_year,
+      y = round(cum_pl, 2),
+      group = fiscal_year
+    )
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0("<span style=\"color:{point.color}\">●</span> ", tt),
+    useHTML = TRUE,
+    valueDecimals = 0
+  ) %>%
+  hc_title(text = "X3室 YTD PL") %>%
+  hc_xAxis(
+    title = list(text = "number of days"),
+    tickInterval = 50,
+    lineColor = "#999999"
+  ) %>%
+  hc_yAxis(
+    title = list(text = "YTD PL (mil JPY)"),
+    gridLineColor = "#999999"
+  ) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_x3_pl
+```
+
+## X4室
+
+```{r, results='asis', rowheight = 1400}
+
+## data setting
+
+x4_pl <- historical_data %>%
+  filter(area %in% c("x4")) %>%
+  group_by(area) %>%
+  mutate(
+    year = year(date),
+    fiscal_year = if_else(
+      month(date) > 3, paste0("FY", year + 1), paste0("FY", year)
+    )
+  ) %>%
+  group_by(fiscal_year) %>%
+  mutate(
+    number_year = row_number(),
+    cum_pl = cumsum(daily_ne)
+  )
+
+## data visualization
+
+hc_x4_pl <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#E9EDE2"
+  ) %>%
+  hc_add_series(
+    data = x4_pl,
+    type = "line",
+    lineWidth = 2.5,
+    hcaes(
+      x = number_year,
+      y = round(cum_pl, 2),
+      group = fiscal_year
+    )
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0("<span style=\"color:{point.color}\">●</span> ", tt),
+    useHTML = TRUE,
+    valueDecimals = 0
+  ) %>%
+  hc_title(text = "X4室 YTD PL") %>%
+  hc_xAxis(
+    title = list(text = "number of days"),
+    tickInterval = 50,
+    lineColor = "#999999"
+  ) %>%
+  hc_yAxis(
+    title = list(text = "YTD PL (mil JPY)"),
+    gridLineColor = "#999999"
+  ) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_x4_pl
+```
+:::
+
+------------------------------------------------------------------------
+
+# 年間の収益効率性
+
+## 収益効率性
+
+-   過去250日間の平均Daily PL及び、平均1day VaRから各営業室の収益効率性の推移を分析。
+
+-   収益効率性を求める計算式は以下の通り定義。
+
+$$RiskReturn = \frac{\bar{DailyNE}}{|\bar{1dayVaR}|}$$
+
+$$1dayVaR = \frac{10dayVaR}{\sqrt{10}}$$
+
+::: {.panel-tabset .nav-pills}
+### 250日平均PL
+
+```{r}
+# define width
+width <- 250
+
+# data setting
+
+a <- historical_data %>%
+  filter(area %in% c("x1", "x2", "x3")) %>%
+  group_by(area) %>%
+  mutate(
+    one_day_var = var / sqrt(10),
+    roll_mean_ne = roll_mean(x = daily_ne, width = width),
+    roll_mean_var = roll_mean(x = one_day_var, width = width),
+    roll_mean_ne_var = (roll_mean_ne / roll_mean_var) * (-1)
+  ) %>%
+  ungroup() %>%
+  select(area, date, roll_mean_ne, roll_mean_var, roll_mean_ne_var) %>%
+  filter(date >= as.Date("2021-04-09"))
+
+# NE visualization
+
+hc_a <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF1E0"
+  ) %>%
+  hc_add_series(
+    data = a,
+    type = "line",
+    hcaes(
+      x = date,
+      y = round(roll_mean_ne, 4),
+      group = area,
+      color = area
+    )
+  ) %>%
+  hc_colors(c("#7cb5ec", "#90ed7d", "#434348")) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    dateTimeLabelFormats = list(month = "%Y-%m-%d"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "250日平均PL") %>%
+  hc_yAxis(title = list(text = "roll_mean_ne (mil JPY)")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_a
+```
+
+### 250日平均1day VaR
+
+```{r}
+# VaR visualization
+
+hc_b <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF6ED",
+    events = list(
+      load = JS("function () {var chart = this;
+                  chart.xAxis[0].addPlotLine({
+                    value: Date.UTC(2022, 6, 1),
+                    color: '#000000',
+                    width: 2,
+                    dashStyle: 'LongDash',
+                    zIndex: 5,
+                    label: {text: 'x2 VaR Model Change'}
+                    });
+                }")
+    )
+  ) %>%
+  hc_add_series(
+    data = a,
+    type = "line",
+    hcaes(
+      x = date,
+      y = round(roll_mean_var, 4),
+      group = area,
+      color = area
+    )
+  ) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    dateTimeLabelFormats = list(month = "%Y-%m-%d"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "250日平均1day VaR") %>%
+  hc_yAxis(title = list(text = "roll_mean_var (mil JPY)")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_b
+```
+
+### 250日収益効率性
+
+```{r}
+# Risk Return visualization
+
+hc_c <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFEAD3"
+  ) %>%
+  hc_add_series(
+    data = a,
+    type = "line",
+    hcaes(
+      x = date,
+      y = round(roll_mean_ne_var, 4),
+      group = area,
+      color = area
+    )
+  ) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    dateTimeLabelFormats = list(month = "%Y-%m-%d"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "250日収益効率性") %>%
+  hc_yAxis(title = list(text = "roll_mean_ne_var")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_c
+```
+:::
+
+## 収益効率性 -Zスコア-
+
+-   Zスコアは平均値を基準とした値の広がりを表す統計指標。
+
+    -   "μ" : 母集団の平均 / "σ" : 母集団の標準偏差
+
+$$z = \frac{x - \mu}{\sigma}$$
+
+-   データを標準化することでデータ群間の比較が可能になる。
+
+-   Zスコアの捉え方(分布を正規分布と仮定する)
+
+    -   1σ区間に収まる確率: 約68%
+
+    -   2σ区間に収まる確率: 約95%
+
+    -   3σ区間に収まる確率: 約99.7%
+
+::: {.panel-tabset .nav-pills}
+### PL Zスコア
+
+```{r}
+# Z score of NE
+## data setting
+
+# define width
+width <- 250
+
+# Z score of NE
+## data setting
+
+d <- historical_data %>%
+  filter(area %in% c("x1", "x2", "x3")) %>%
+  group_by(area) %>%
+  mutate(
+    roll_mean_ne = roll_mean(x = daily_ne, width = width)
+  ) %>%
+  ungroup() %>%
+  select(area, date, roll_mean_ne) %>%
+  drop_na() %>%
+  group_by(area) %>%
+  mutate(
+    y_mean_ne = mean(x = roll_mean_ne),
+    y_sd_ne = sd(x = roll_mean_ne),
+    z_score_y_ne = (roll_mean_ne - y_mean_ne) / y_sd_ne
+  ) %>% 
+  filter(date >= as.Date("2021-04-09"))
+
+e <- historical_data %>%
+  filter(area %in% c("x1", "x2", "x3")) %>%
+  select(area, date, daily_ne) %>%
+  group_by(area) %>%
+  mutate(
+    y_mean_ne = roll_mean(x = daily_ne, width = width),
+    y_sd_ne = roll_sd(x = daily_ne, width = width),
+    z_score_y_ne = (daily_ne - y_mean_ne) / y_sd_ne
+  )
+
+## data visualization
+
+hc_d <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF1E0"
+  ) %>%
+  hc_add_series(
+    data = d,
+    type = "line",
+    hcaes(
+      x = date,
+      y = round(z_score_y_ne, 4),
+      group = area
+    )
+  ) %>%
+  hc_colors(c("#7cb5ec", "#90ed7d", "#434348")) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    dateTimeLabelFormats = list(month = "%Y-%m-%d"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "PL Zスコア") %>%
+  hc_yAxis(title = list(text = "z_score (&sigma;)")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_d
+```
+
+### VaR Zスコア
+
+```{r}
+# Z score of VaR
+## data setting
+
+f <- historical_data %>%
+  filter(area %in% c("x1", "x2", "x3")) %>%
+  group_by(area) %>%
+  mutate(
+    one_day_var = -var / sqrt(10),
+    roll_mean_var = roll_mean(one_day_var, width = width)
+  ) %>%
+  ungroup() %>%
+  select(area, date, roll_mean_var) %>%
+  drop_na() %>%
+  group_by(area) %>%
+  mutate(
+    y_mean_var = mean(x = roll_mean_var),
+    y_sd_var = sd(x = roll_mean_var),
+    z_score_y_var = (roll_mean_var - y_mean_var) / y_sd_var
+  )
+
+## data visualization
+
+hc_f <- highchart() %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF6ED"
+  ) %>%
+  hc_add_series(
+    data = f,
+    type = "line",
+    hcaes(
+      x = date,
+      y = round(z_score_y_var, 4),
+      group = area
+    )
+  ) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    dateTimeLabelFormats = list(month = "%Y-%m-%d"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "VaR Zスコア") %>%
+  hc_yAxis(title = list(text = "z_score (&sigma;)")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_f
+```
+
+### 収益効率性 Zスコア
+
+```{r}
+# Z score of risk return
+## data setting
+
+g <- historical_data %>%
+  filter(area %in% c("x1", "x2", "x3")) %>%
+  group_by(area) %>%
+  mutate(
+    one_day_var = -var / sqrt(10),
+    roll_mean_ne = roll_mean(x = daily_ne, width = width),
+    roll_mean_var = roll_mean(x = one_day_var, width = width),
+    roll_mean_ne_var = roll_mean_ne / roll_mean_var
+  ) %>%
+  ungroup() %>%
+  select(area, date, roll_mean_ne_var) %>%
+  drop_na() %>%
+  group_by(area) %>%
+  mutate(
+    y_mean_ne_var = mean(x = roll_mean_ne_var),
+    y_sd_ne_var = sd(x = roll_mean_ne_var),
+    z_score_y_ne_var = (roll_mean_ne_var - y_mean_ne_var) / y_sd_ne_var
+  )
+
+## data setting
+
+hc_g <- highchart(type = "chart") %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFEAD3"
+  ) %>%
+  hc_add_series(
+    data = g,
+    type = "line",
+    hcaes(
+      x = date,
+      y = round(z_score_y_ne_var, 4),
+      group = area
+    )
+  ) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m}"),
+    dateTimeLabelFormats = list(month = "%Y-%m"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "収益効率性　Zスコア") %>%
+  hc_yAxis(title = list(text = "z_score (&sigma;)")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_g
+```
+:::
+
+------------------------------------------------------------------------
+
+# 各室の月間PL
+
+::: callout-gradient
+::: callout-note
+積み上げグラフにより各室の月間PLを表示 🙃
+:::
+:::
+
+```{r}
+# 月間NE
+## data setting
+
+h <- historical_data %>%
+  mutate(
+    month = as.Date(cut(date, breaks = "month"))
+  ) %>%
+  group_by(area, month) %>%
+  summarise(
+    mtd_ne = sum(daily_ne)
+  )
+
+## data visualization
+
+hc_h <- highchart(type = "chart") %>%
+  hc_yAxis_multiples(
+    create_yaxis(
+      naxis = 1,
+      height = c(2, 1),
+      turnopposite = TRUE,
+      title = c(
+        list(title = list(text = "Monthly PL (mil JPY)"))
+      )
+    )
+  ) %>%
+  hc_chart(
+    backgroundColor = "#FFF1E0",
+    zoomType = "x"
+  ) %>%
+  hc_add_series(
+    data = h,
+    type = "area",
+    yAxis = 0,
+    hcaes(
+      x = month,
+      y = round(mtd_ne, 2),
+      group = area
+    )
+  ) %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m}"),
+    dateTimeLabelFormats = list(month = "%Y-%m"),
+    tickInterval = 1 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_title(text = "X部 月間PL") %>%
+  hc_legend(
+    layout = "horizontal",
+    align = "center",
+    verticalAlign = "bottom"
+  ) %>%
+  hc_plotOptions(area = list(stacking = "normal")) %>%
+  hc_exporting(enabled = TRUE)
+
+hc_h
+```
+
+------------------------------------------------------------------------
+
+# コモディティ価格推移
+
+## 価格推移
+
+-   LME(ロンドン金属取引所)上場商品の価格推移 (2019/4/1~現在)
+
+::: callout-caution
+2022年3月はロシアによるウクライナ侵攻に伴う混乱からニッケル価格が急上昇しLMEでの取引が停止に追い込まれた。そのため、数日間価格公表されていない。
+:::
+
+```{r lme_price1}
+price <- read_xlsx("data/lme_price_201904_now.xlsx")
+
+# dateを日付型に変換
+
+price$date <- as.Date(price$date)
+
+# make pivot longer
+
+price_longer <- price %>%
+  pivot_longer(
+    c("copper", "aluminium", "lead", "nickel", "zinc", "tin", "cobalt"),
+    names_to = "commodity",
+    values_to = "price_change"
+  )
+
+# highchartsグラフ作成
+
+price_com <- highchart(type = "chart") %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF1E0"
+  ) %>%
+  hc_add_series(
+    data = price_longer,
+    type = "line",
+    hcaes(
+      x = as.Date(price_longer$date),
+      y = round(price_change, 4),
+      group = commodity
+    )
+  ) %>%
+  hc_title(text = "LME商品価格推移") %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_yAxis(
+    title = list(text = "Price ($)"),
+    labels = list(format = "{value:,.0f}")
+  ) %>%
+  hc_credits(
+    enabled = TRUE,
+    text = "Data Source: Refinitiv Eikon",
+    href = "https://www.refinitiv.com/ja"
+  ) %>%
+  hc_exporting(enabled = TRUE)
+
+# グラフ表示
+
+price_com
+```
+
+## 変化率
+
+-   2023/4/1の各商品の価格を1とした時の価格変動推移。
+
+```{r lme_price3}
+# data読み込み
+
+price_2403 <- read_xlsx("data/lme_price_201904_now.xlsx")
+
+# dateを日付型に変換
+
+price_2403$date <- as.Date(price$date)
+
+price_2403 <- price_2403 %>%
+  filter(date >= as.Date("2023-04-01"))
+
+
+price_longer_2403 <- price_2403 %>%
+  pivot_longer(
+    c("copper", "aluminium", "lead", "nickel", "zinc", "tin", "cobalt"),
+    names_to = "commodity",
+    values_to = "price_change"
+  )
+
+# 価格変動計算
+
+price_2403$copper <- price_2403$copper / price_2403$copper[1]
+
+price_2403$aluminium <- price_2403$aluminium / price_2403$aluminium[1]
+
+price_2403$lead <- price_2403$lead / price_2403$lead[1]
+
+price_2403$nickel <- price_2403$nickel / price_2403$nickel[1]
+
+price_2403$zinc <- price_2403$zinc / price_2403$zinc[1]
+
+price_2403$tin <- price_2403$tin / price_2403$tin[1]
+
+price_2403$cobalt <- price_2403$cobalt / price_2403$cobalt[1]
+
+# make pivot longer
+
+price_change_longer_2403 <- price_2403 %>%
+  pivot_longer(
+    c("copper", "aluminium", "lead", "nickel", "zinc", "tin", "cobalt"),
+    names_to = "commodity", values_to = "price_change"
+  )
+
+price_combined_2403 <- inner_join(
+  price_longer_2403,
+  price_change_longer_2403,
+  by = c("date", "commodity")
+) %>%
+  rename(
+    price = "price_change.x",
+    price_change = "price_change.y"
+  )
+
+# tooltip settings
+
+x <- c("Date", "Price", "Ratio")
+y <- c("{point.date}", "{point.price}", "{point.y}")
+
+tt <- tooltip_table(x, y)
+
+# highchartsグラフ作成
+
+price_change_2403 <- highchart(type = "chart") %>%
+  hc_chart(
+    zoomType = "x",
+    backgroundColor = "#FFF1E0"
+  ) %>%
+  hc_add_series(
+    data = price_combined_2403,
+    type = "line",
+    hcaes(
+      x = as.Date(price_combined_2403$date),
+      y = round(price_combined_2403$price_change, 4),
+      group = commodity
+    )
+  ) %>%
+  hc_tooltip(
+    pointFormat = tt,
+    useHTML = TRUE,
+    valueDecimals = 4
+  ) %>%
+  hc_title(text = "コモディティ価格変動推移") %>%
+  hc_subtitle(text = "2023/4/1を1とした価格変動率") %>%
+  hc_xAxis(
+    type = "datetime",
+    labels = list(format = "{value:%Y-%m-%d}"),
+    tickInterval = 3 * 30 * 24 * 3600 * 1000
+  ) %>%
+  hc_yAxis(title = list(text = "Price Change")) %>%
+  hc_credits(
+    enabled = TRUE,
+    text = "Data Source: Refinitiv Eikon",
+    href = "https://www.refinitiv.com/ja"
+  ) %>%
+  hc_exporting(enabled = TRUE)
+
+# グラフ表示
+
+price_change_2403
+```
+
+------------------------------------------------------------------------
+
+# 参考資料
+
+-   [R for Data Science (2e)](https://r4ds.hadley.nz/)
+
+-   [Highcharts](https://www.highcharts.com/)
+
+&nbsp;
+
+<hr />
+<p style="text-align: center;">A work by Shuntaro Ono</a></p>
+<p style="text-align: center;"><span style="color: #808080;"><em>shun2286@gmail.com</em></span></p>
+
+&nbsp;
