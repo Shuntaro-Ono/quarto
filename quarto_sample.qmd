@@ -59,11 +59,15 @@ library(downlit)
 
 ```
 
-# Data準備
+# Data Preparation
 
--   日次で作成しているHistorical Dataを使用。
+- In order to analyze trends of sale between several fiscal years, historical daily PL needs to be combined.
 
--   2103期から2403期2月末までのデータを集積。
+- The combined data consists of P&L data from X Department between FY2021 and FY2024.
+
+::: callout-caution
+All data and names have been randomized to prevent identification of any specific company. 
+:::
 
 ```{r, results='asis'}
 # data of FY2021
@@ -75,12 +79,12 @@ historical_data$date <- as.Date(historical_data$date)
 
 ------------------------------------------------------------------------
 
-# 年度別NE
+# PL By Fiscal Year
 
--   X部の各営業室の年度別PL
+- P&L of X Department by fiscal year
 
 ::: {.panel-tabset .nav-pills}
-## X1室
+## X1 Division
 
 ```{r, results='asis', rowheight = 1400}
 # tooltip settings
@@ -130,7 +134,7 @@ hc_x1_pl <- highchart() %>%
     useHTML = TRUE,
     valueDecimals = 0
   ) %>%
-  hc_title(text = "X1室 YTD PL") %>%
+  hc_title(text = "X1 YTD PL") %>%
   hc_xAxis(
     title = list(text = "number of days"),
     tickInterval = 50,
@@ -145,7 +149,7 @@ hc_x1_pl <- highchart() %>%
 hc_x1_pl
 ```
 
-## X2室
+## X2 Division
 
 ```{r, results='asis', rowheight = 1400}
 
@@ -188,7 +192,7 @@ hc_x2_pl <- highchart() %>%
     useHTML = TRUE,
     valueDecimals = 0
   ) %>%
-  hc_title(text = "X2室 YTD PL") %>%
+  hc_title(text = "X2 YTD PL") %>%
   hc_xAxis(
     title = list(text = "number of days"),
     tickInterval = 50,
@@ -203,7 +207,7 @@ hc_x2_pl <- highchart() %>%
 hc_x2_pl
 ```
 
-## X3室
+## X3 Division
 
 ```{r, results='asis', rowheight = 1400}
 
@@ -246,7 +250,7 @@ hc_x3_pl <- highchart() %>%
     useHTML = TRUE,
     valueDecimals = 0
   ) %>%
-  hc_title(text = "X3室 YTD PL") %>%
+  hc_title(text = "X3 YTD PL") %>%
   hc_xAxis(
     title = list(text = "number of days"),
     tickInterval = 50,
@@ -261,7 +265,7 @@ hc_x3_pl <- highchart() %>%
 hc_x3_pl
 ```
 
-## X4室
+## X4 Division
 
 ```{r, results='asis', rowheight = 1400}
 
@@ -304,7 +308,7 @@ hc_x4_pl <- highchart() %>%
     useHTML = TRUE,
     valueDecimals = 0
   ) %>%
-  hc_title(text = "X4室 YTD PL") %>%
+  hc_title(text = "X4 YTD PL") %>%
   hc_xAxis(
     title = list(text = "number of days"),
     tickInterval = 50,
@@ -322,20 +326,20 @@ hc_x4_pl
 
 ------------------------------------------------------------------------
 
-# 年間の収益効率性
+# Yearly Risk Return
 
-## 収益効率性
+## Revenue Efficiency
 
--   過去250日間の平均Daily PL及び、平均1day VaRから各営業室の収益効率性の推移を分析。
+-   Analyze the trends in revenue efficiency for each sales department based on the average daily PL and average 1-day VaR over the past 250 days.
 
--   収益効率性を求める計算式は以下の通り定義。
+-   The formula for calculating revenue efficiency is defined as follows.
 
 $$RiskReturn = \frac{\bar{DailyNE}}{|\bar{1dayVaR}|}$$
 
 $$1dayVaR = \frac{10dayVaR}{\sqrt{10}}$$
 
 ::: {.panel-tabset .nav-pills}
-### 250日平均PL
+###  Average Daily PL
 
 ```{r}
 # define width
@@ -344,7 +348,7 @@ width <- 250
 # data setting
 
 a <- historical_data %>%
-  filter(area %in% c("x1", "x2", "x3")) %>%
+  filter(area %in% c("x1", "x2", "x3", "x4")) %>%
   group_by(area) %>%
   mutate(
     one_day_var = var / sqrt(10),
@@ -373,21 +377,21 @@ hc_a <- highchart() %>%
       color = area
     )
   ) %>%
-  hc_colors(c("#7cb5ec", "#90ed7d", "#434348")) %>%
+  #hc_colors(c("#7cb5ec", "#90ed7d", "#434348")) %>%
   hc_xAxis(
     type = "datetime",
     labels = list(format = "{value:%Y-%m-%d}"),
     dateTimeLabelFormats = list(month = "%Y-%m-%d"),
     tickInterval = 3 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "250日平均PL") %>%
+  hc_title(text = "250-day Moving Average PL") %>%
   hc_yAxis(title = list(text = "roll_mean_ne (mil JPY)")) %>%
   hc_exporting(enabled = TRUE)
 
 hc_a
 ```
 
-### 250日平均1day VaR
+### Average 1-day VaR 
 
 ```{r}
 # VaR visualization
@@ -425,14 +429,14 @@ hc_b <- highchart() %>%
     dateTimeLabelFormats = list(month = "%Y-%m-%d"),
     tickInterval = 3 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "250日平均1day VaR") %>%
+  hc_title(text = "250-day Moving Average 1-day VaR") %>%
   hc_yAxis(title = list(text = "roll_mean_var (mil JPY)")) %>%
   hc_exporting(enabled = TRUE)
 
 hc_b
 ```
 
-### 250日収益効率性
+### Revenue Efficiency
 
 ```{r}
 # Risk Return visualization
@@ -458,7 +462,7 @@ hc_c <- highchart() %>%
     dateTimeLabelFormats = list(month = "%Y-%m-%d"),
     tickInterval = 3 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "250日収益効率性") %>%
+  hc_title(text = "250-day Moving Average Risk Efficiency") %>%
   hc_yAxis(title = list(text = "roll_mean_ne_var")) %>%
   hc_exporting(enabled = TRUE)
 
@@ -466,26 +470,26 @@ hc_c
 ```
 :::
 
-## 収益効率性 -Zスコア-
+## Revenue Efficiency - Z-Score -
 
--   Zスコアは平均値を基準とした値の広がりを表す統計指標。
+-   The Z-score is a statistical measure that represents the dispersion of values based on the mean.
 
-    -   "μ" : 母集団の平均 / "σ" : 母集団の標準偏差
+    -   "μ" : Population mean / "σ" : Population standard deviation
 
 $$z = \frac{x - \mu}{\sigma}$$
 
--   データを標準化することでデータ群間の比較が可能になる。
+-   By standardizing the data, it becomes possible to compare different data sets.
 
--   Zスコアの捉え方(分布を正規分布と仮定する)
+-  Interpretation of the Z-score (assuming a normal distribution):
 
-    -   1σ区間に収まる確率: 約68%
+    -   Probability within 1σ: Approximately 68%
 
-    -   2σ区間に収まる確率: 約95%
+    -   Probability within 2σ: Approximately 95%
 
-    -   3σ区間に収まる確率: 約99.7%
+    -   Probability within 3σ: Approximately 99.7%
 
 ::: {.panel-tabset .nav-pills}
-### PL Zスコア
+### PL Z-Score
 
 ```{r}
 # Z score of NE
@@ -498,7 +502,7 @@ width <- 250
 ## data setting
 
 d <- historical_data %>%
-  filter(area %in% c("x1", "x2", "x3")) %>%
+  filter(area %in% c("x1", "x2", "x3", "x4")) %>%
   group_by(area) %>%
   mutate(
     roll_mean_ne = roll_mean(x = daily_ne, width = width)
@@ -515,7 +519,7 @@ d <- historical_data %>%
   filter(date >= as.Date("2021-04-09"))
 
 e <- historical_data %>%
-  filter(area %in% c("x1", "x2", "x3")) %>%
+  filter(area %in% c("x1", "x2", "x3", "x4")) %>%
   select(area, date, daily_ne) %>%
   group_by(area) %>%
   mutate(
@@ -540,28 +544,28 @@ hc_d <- highchart() %>%
       group = area
     )
   ) %>%
-  hc_colors(c("#7cb5ec", "#90ed7d", "#434348")) %>%
+  #hc_colors(c("#7cb5ec", "#90ed7d", "#434348")) %>%
   hc_xAxis(
     type = "datetime",
     labels = list(format = "{value:%Y-%m-%d}"),
     dateTimeLabelFormats = list(month = "%Y-%m-%d"),
     tickInterval = 3 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "PL Zスコア") %>%
+  hc_title(text = "PL Z-Score") %>%
   hc_yAxis(title = list(text = "z_score (&sigma;)")) %>%
   hc_exporting(enabled = TRUE)
 
 hc_d
 ```
 
-### VaR Zスコア
+### VaR Z-Score
 
 ```{r}
 # Z score of VaR
 ## data setting
 
 f <- historical_data %>%
-  filter(area %in% c("x1", "x2", "x3")) %>%
+  filter(area %in% c("x1", "x2", "x3", "x4")) %>%
   group_by(area) %>%
   mutate(
     one_day_var = -var / sqrt(10),
@@ -599,21 +603,21 @@ hc_f <- highchart() %>%
     dateTimeLabelFormats = list(month = "%Y-%m-%d"),
     tickInterval = 3 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "VaR Zスコア") %>%
+  hc_title(text = "VaR Z-Score") %>%
   hc_yAxis(title = list(text = "z_score (&sigma;)")) %>%
   hc_exporting(enabled = TRUE)
 
 hc_f
 ```
 
-### 収益効率性 Zスコア
+### Revenue Efficiency Z-Score
 
 ```{r}
 # Z score of risk return
 ## data setting
 
 g <- historical_data %>%
-  filter(area %in% c("x1", "x2", "x3")) %>%
+  filter(area %in% c("x1", "x2", "x3", "x4")) %>%
   group_by(area) %>%
   mutate(
     one_day_var = -var / sqrt(10),
@@ -653,7 +657,7 @@ hc_g <- highchart(type = "chart") %>%
     dateTimeLabelFormats = list(month = "%Y-%m"),
     tickInterval = 3 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "収益効率性　Zスコア") %>%
+  hc_title(text = "Risk Efficiency Z-Score") %>%
   hc_yAxis(title = list(text = "z_score (&sigma;)")) %>%
   hc_exporting(enabled = TRUE)
 
@@ -663,11 +667,11 @@ hc_g
 
 ------------------------------------------------------------------------
 
-# 各室の月間PL
+# Monthly PL of Each Division
 
 ::: callout-gradient
 ::: callout-note
-積み上げグラフにより各室の月間PLを表示 🙃
+Displayed the monthly PL for each division using a stacked bar chart. 🙃
 :::
 :::
 
@@ -717,7 +721,7 @@ hc_h <- highchart(type = "chart") %>%
     dateTimeLabelFormats = list(month = "%Y-%m"),
     tickInterval = 1 * 30 * 24 * 3600 * 1000
   ) %>%
-  hc_title(text = "X部 月間PL") %>%
+  hc_title(text = "X Department Monthly PL") %>%
   hc_legend(
     layout = "horizontal",
     align = "center",
@@ -731,14 +735,14 @@ hc_h
 
 ------------------------------------------------------------------------
 
-# コモディティ価格推移
+# Commodity Price Trends
 
-## 価格推移
+## Price Trends
 
--   LME(ロンドン金属取引所)上場商品の価格推移 (2019/4/1~現在)
+-   Price trends of LME (London Metal Exchange) listed products (April 1, 2019 - Present)
 
 ::: callout-caution
-2022年3月はロシアによるウクライナ侵攻に伴う混乱からニッケル価格が急上昇しLMEでの取引が停止に追い込まれた。そのため、数日間価格公表されていない。
+In March 2022, nickel prices surged due to the turmoil caused by Russia's invasion of Ukraine, leading to a halt in trading on LME. As a result, prices were not published for several days.
 :::
 
 ```{r lme_price1}
@@ -773,7 +777,7 @@ price_com <- highchart(type = "chart") %>%
       group = commodity
     )
   ) %>%
-  hc_title(text = "LME商品価格推移") %>%
+  hc_title(text = "LME Commodity Price Trends") %>%
   hc_xAxis(
     type = "datetime",
     labels = list(format = "{value:%Y-%m-%d}"),
@@ -795,9 +799,9 @@ price_com <- highchart(type = "chart") %>%
 price_com
 ```
 
-## 変化率
+## Price Change Rate
 
--   2023/4/1の各商品の価格を1とした時の価格変動推移。
+-   Price fluctuations over time, using the prices of each product on April 1, 2023, as the baseline (set to 1).
 
 ```{r lme_price3}
 # data読み込み
@@ -881,8 +885,7 @@ price_change_2403 <- highchart(type = "chart") %>%
     useHTML = TRUE,
     valueDecimals = 4
   ) %>%
-  hc_title(text = "コモディティ価格変動推移") %>%
-  hc_subtitle(text = "2023/4/1を1とした価格変動率") %>%
+  hc_title(text = "LME Commodity Price Change") %>%
   hc_xAxis(
     type = "datetime",
     labels = list(format = "{value:%Y-%m-%d}"),
@@ -903,7 +906,7 @@ price_change_2403
 
 ------------------------------------------------------------------------
 
-# 参考資料
+# References
 
 -   [R for Data Science (2e)](https://r4ds.hadley.nz/)
 
