@@ -70,7 +70,6 @@ All data and names have been randomized to prevent identification of any specifi
 :::
 
 ```{r, results='asis'}
-# data of FY2021
 
 historical_data <- read_xlsx("data/Historical_Data_20210330.xlsx")
 
