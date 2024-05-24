@@ -1,5 +1,5 @@
 ---
-title: "Sample Report (Quarto)"
+title: "Trends of Sale / Commodity Price"
 format: 
   html:
     css: style.css
@@ -61,12 +61,12 @@ library(downlit)
 
 # Data Preparation
 
-- In order to analyze trends of sale between several fiscal years, historical daily PL needs to be combined.
+-   In order to analyze trends of sale between several fiscal years, historical daily PL needs to be combined.
 
-- The combined data consists of P&L data from X Department between FY2021 and FY2024.
+-   The combined data consists of P&L data from X Department between FY2021 and FY2024.
 
 ::: callout-caution
-All data and names have been randomized to prevent identification of any specific company. 
+All data and names have been randomized to prevent identification of any specific company.
 :::
 
 ```{r, results='asis'}
@@ -80,7 +80,7 @@ historical_data$date <- as.Date(historical_data$date)
 
 # PL By Fiscal Year
 
-- P&L of X Department by fiscal year
+-   P&L of X Department by fiscal year
 
 ::: {.panel-tabset .nav-pills}
 ## X1 Division
@@ -333,12 +333,12 @@ hc_x4_pl
 
 -   The formula for calculating revenue efficiency is defined as follows.
 
-$$RiskReturn = \frac{\bar{DailyNE}}{|\bar{1dayVaR}|}$$
+$$RiskReturn = \frac{\bar{DailyPL}}{|\bar{1dayVaR}|}$$
 
 $$1dayVaR = \frac{10dayVaR}{\sqrt{10}}$$
 
 ::: {.panel-tabset .nav-pills}
-###  Average Daily PL
+### Average Daily PL
 
 ```{r}
 # define width
@@ -390,7 +390,7 @@ hc_a <- highchart() %>%
 hc_a
 ```
 
-### Average 1-day VaR 
+### Average 1-day VaR
 
 ```{r}
 # VaR visualization
@@ -479,7 +479,7 @@ $$z = \frac{x - \mu}{\sigma}$$
 
 -   By standardizing the data, it becomes possible to compare different data sets.
 
--  Interpretation of the Z-score (assuming a normal distribution):
+-   Interpretation of the Z-score (assuming a normal distribution):
 
     -   Probability within 1σ: Approximately 68%
 
@@ -912,9 +912,8 @@ price_change_2403
 -   [Highcharts](https://www.highcharts.com/)
 
 &nbsp;
-
 <hr />
-<p style="text-align: center;">A work by Shuntaro Ono</a></p>
+<p style="text-align: center;">A work by Shuntaro Ono</p>
 <p style="text-align: center;"><span style="color: #808080;"><em>shun2286@gmail.com</em></span></p>
 
 &nbsp;
